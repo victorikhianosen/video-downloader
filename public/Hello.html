@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcaneStream Downloader - Sweet UI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* 1. CSS VARIABLES & BASE STYLES - SWEET FUTURISTIC THEME */
+        :root {
+            --primary-accent: #00bcd4; /* Brighter Cyan */
+            --secondary-accent: #ff4081; /* Neon Pink/Magenta */
+            --background-deep: #12121e; /* Almost Black Blue */
+            --background-mid: #1c1c30;
+            --background-light: #252540; /* Card/Surface background */
+            --text-light: #f0f0f0;
+            --text-muted: #9fa8da;
+            --border-color: rgba(var(--primary-accent), 0.3);
+            --shadow-glow: 0 0 15px rgba(0, 188, 212, 0.6); /* Cyan glow */
+            --shadow-inset: inset 0 0 10px rgba(0, 188, 212, 0.15); /* Soft inner glow */
+            --transition-speed: 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother animation curve */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-deep);
+            color: var(--text-light);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Sweet Touch: Subtle Background Noise/Grain */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Helper for accent text */
+        .accent-text {
+            color: var(--primary-accent);
+            text-shadow: 0 0 5px rgba(0, 188, 212, 0.8);
+        }
+
+        /* 2. HEADER & FOOTER */
+        .app-header {
+            background-color: var(--background-mid);
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+        .logo i {
+            color: var(--secondary-accent);
+            text-shadow: 0 0 10px var(--secondary-accent);
+            margin-right: 0.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            margin-left: 2rem;
+            transition: color var(--transition-speed);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-accent);
+            text-shadow: 0 0 5px var(--border-color);
+        }
+
+        .app-footer {
+            margin-top: auto;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(var(--primary-accent), 0.1);
+            background-color: var(--background-mid);
+        }
+
+        /* 3. MAIN CONTENT LAYOUT */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3.5rem 1.5rem;
+        }
+
+        .card {
+            background-color: var(--background-light);
+            border-radius: 15px; /* Softer radius */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(var(--primary-accent), 0.2);
+            padding: 3rem;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(var(--primary-accent), 0.1);
+            transition: box-shadow var(--transition-speed);
+        }
+
+        /* 4. HERO SECTION STYLES */
+        .headline {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.75rem;
+            text-align: center;
+            letter-spacing: 2px;
+            /* Gradient Text Effect */
+            background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 64, 129, 0.4); /* Pink glow for pop */
+        }
+
+        .sub-headline {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 3.5rem;
+            text-align: center;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        #video-url {
+            flex-grow: 1;
+            padding: 1.25rem 1.75rem;
+            border: 1px solid rgba(var(--primary-accent), 0.5);
+            border-radius: 10px;
+            font-size: 1.05rem;
+            background-color: var(--background-mid);
+            color: var(--text-light);
+            box-shadow: var(--shadow-inset);
+            outline: none;
+            transition: all var(--transition-speed);
+        }
+
+        #video-url:focus {
+            border-color: var(--secondary-accent);
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.6), var(--shadow-inset);
+        }
+
+
+        /* 5. BUTTON STYLES - STRONGER HAPTIC FEEL */
+        .btn {
+            padding: 1.25rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            white-space: nowrap;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn:active {
+            transform: scale(0.98); /* More noticeable press effect */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .btn-action {
+            /* Deeper, more complex button gradient */
+            background: linear-gradient(135deg, var(--primary-accent) 0%, #00838f 100%);
+            color: var(--background-deep);
+            box-shadow: 0 5px 25px rgba(0, 188, 212, 0.5);
+        }
+
+        .btn-action:hover {
+            background: linear-gradient(135deg, var(--primary-accent) 0%, #00bcd4 100%);
+            box-shadow: 0 8px 30px rgba(0, 188, 212, 0.7);
+        }
+
+        .btn-accent {
+            background: linear-gradient(45deg, var(--secondary-accent) 0%, #880e4f 100%);
+            color: white;
+            width: 100%;
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        .btn-accent:hover {
+            background: linear-gradient(45deg, #ff4081 0%, #880e4f 100%);
+            box-shadow: 0 8px 30px rgba(255, 64, 129, 0.7);
+        }
+
+        .btn-accent.disabled {
+            background: var(--background-mid);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            pointer-events: none;
+            box-shadow: var(--shadow-inset);
+            opacity: 0.6;
+            transform: none;
+        }
+
+        /* 6. RESULTS PANEL STYLES */
+        .video-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: var(--background-mid);
+            border-radius: 10px;
+            border: 1px solid rgba(var(--primary-accent), 0.2);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .thumbnail {
+            min-width: 180px;
+            height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid var(--primary-accent);
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
+        }
+
+        .details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .meta-data {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .selection-title {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .format-heading {
+            color: var(--secondary-accent);
+            margin-bottom: 1.2rem;
+            font-size: 1.15rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255, 64, 129, 0.5);
+        }
+
+        .format-group {
+            padding: 1.5rem;
+            border: 1px solid rgba(var(--secondary-accent), 0.2);
+            border-radius: 12px;
+            background-color: var(--background-mid);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .btn-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 1rem;
+            background-color: var(--background-light);
+            color: var(--text-light);
+            padding: 1rem 1.2rem;
+            border: 1px solid rgba(var(--text-muted), 0.3);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-option:hover {
+            background-color: rgba(var(--primary-accent), 0.1);
+            border-color: var(--primary-accent);
+            color: var(--primary-accent);
+        }
+
+        .btn-option.selected {
+            background: linear-gradient(90deg, var(--secondary-accent) 0%, var(--primary-accent) 100%);
+            color: white;
+            border: 1px solid var(--primary-accent);
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+            font-weight: 700;
+        }
+
+        /* 7. PROGRESS BAR & UTILITIES */
+        .progress-area {
+            width: 100%;
+            margin-top: 2.5rem;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 15px;
+            background-color: rgba(var(--text-muted), 0.15);
+            border-radius: 7px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(var(--primary-accent), 0.2);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1de9b6, #00e5ff); /* Aqua/Teal progress */
+            transition: width 0.4s ease-out;
+            border-radius: 7px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Spinner (sweeter version) */
+        .spinner {
+            border: 4px solid rgba(var(--text-muted), 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--secondary-accent);
+            animation: spin 1s linear infinite; /* Linear spin feels more techy */
+            margin: 1.5rem auto 0;
+            box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 8. MOBILE OPTIMIZATION */
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .headline {
+                font-size: 2.2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
+
+            .video-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .thumbnail {
+                width: 100%;
+                max-width: 180px;
+                height: auto;
+            }
+
+            .format-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="logo">
+            <i class="fas fa-microchip"></i> **ArcaneStream**
+        </div>
+        <nav class="nav-links">
+            <a href="#">Protocols</a>
+            <a href="#">FAQ Matrix</a>
+            <a href="#">Contact Node</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section card">
+            <h1 class="headline">
+                <span class="accent-text">Streamline</span> Video Acquisition.
+            </h1>
+            <p class="sub-headline">Access high-fidelity video streams with zero latency via our decentralized network protocol.</p>
+
+            <div class="input-container">
+                <input type="url" id="video-url" placeholder="Enter Arcane Stream ID or URL..." required>
+                <button id="fetch-button" class="btn btn-action">
+                    <i class="fas fa-link"></i> Sync Link
+                </button>
+            </div>
+            <div id="loading-spinner" class="spinner hidden"></div>
+        </section>
+
+        <section id="results-panel" class="results-panel card hidden">
+            <div class="video-info">
+                <img id="video-thumbnail" src="placeholder.jpg" alt="Video Thumbnail" class="thumbnail">
+                <div class="details">
+                    <h2 id="video-title">Decentralized Data Transfer Demo V1.1</h2>
+                    <p id="video-duration" class="meta-data">Duration: 0:00:00</p>
+                </div>
+            </div>
+
+            <h3 class="selection-title">Select Data Format and Resolution</h3>
+
+            <div class="format-grid">
+                <div class="format-group">
+                    <h4 class="format-heading"><i class="fas fa-database"></i> Video Stream (MP4)</h4>
+                    <button class="btn btn-option" data-format="mp4" data-quality="2160p">2160p (UHD)</button>
+                    <button class="btn btn-option" data-format="mp4" data-quality="1080p">1080p (Full)</button>
+                    <button class="btn btn-option" data-format="mp4" data-quality="720p">720p (Standard)</button>
+                </div>
+
+                <div class="format-group">
+                    <h4 class="format-heading"><i class="fas fa-waveform-path"></i> Audio Protocol (MP3)</h4>
+                    <button class="btn btn-option" data-format="mp3" data-quality="highest">High Fidelity MP3</button>
+                    <button class="btn btn-option" data-format="m4a" data-quality="medium">Lossless M4A</button>
+                </div>
+            </div>
+
+            <button id="download-now-button" class="btn btn-accent disabled" disabled>
+                <i class="fas fa-arrow-to-bottom"></i> Begin Data Extraction
+            </button>
+
+            <div id="progress-area" class="progress-area hidden">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="progress-text" class="meta-data">Decrypting Protocol... 0%</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 ArcaneStream Technologies | <a href="#">Security Manifest</a></p>
+    </footer>
+
+    <script>
+        // Placeholder JavaScript for interactivity
+        document.addEventListener('DOMContentLoaded', () => {
+            const fetchButton = document.getElementById('fetch-button');
+            const downloadButton = document.getElementById('download-now-button');
+            const videoUrlInput = document.getElementById('video-url');
+            const resultsPanel = document.getElementById('results-panel');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const progressArea = document.getElementById('progress-area');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const videoThumbnail = document.getElementById('video-thumbnail');
+            const videoTitle = document.getElementById('video-title');
+            const videoDuration = document.getElementById('video-duration');
+            const optionButtons = document.querySelectorAll('.btn-option');
+
+            let selectedFormat = null;
+            let selectedQuality = null;
+
+            fetchButton.addEventListener('click', () => {
+                const url = videoUrlInput.value;
+                if (!url) {
+                    alert('Please enter a stream ID or URL.');
+                    return;
+                }
+
+                loadingSpinner.classList.remove('hidden');
+                resultsPanel.classList.add('hidden');
+                progressArea.classList.add('hidden');
+                downloadButton.classList.add('disabled');
+                downloadButton.disabled = true;
+                selectedFormat = null;
+                selectedQuality = null;
+                optionButtons.forEach(btn => btn.classList.remove('selected'));
+
+                // Simulate fetching video data
+                setTimeout(() => {
+                    loadingSpinner.classList.add('hidden');
+                    resultsPanel.classList.remove('hidden');
+
+                    // Populate with dummy data
+                    videoThumbnail.src = 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg';
+                    videoTitle.textContent = 'Decentralized Data Transfer Demo V1.1';
+                    videoDuration.textContent = 'Duration: 3:33';
+                }, 1800);
+            });
+
+            optionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    optionButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    selectedFormat = button.dataset.format;
+                    selectedQuality = button.dataset.quality;
+
+                    downloadButton.textContent = `Begin Data Extraction (${selectedQuality.toUpperCase()} ${selectedFormat.toUpperCase()})`;
+                    downloadButton.classList.remove('disabled');
+                    downloadButton.disabled = false;
+                });
+            });
+
+            downloadButton.addEventListener('click', () => {
+                if (!selectedFormat || !selectedQuality) {
+                    alert('Please select a format and quality protocol.');
+                    return;
+                }
+
+                downloadButton.classList.add('disabled');
+                downloadButton.disabled = true;
+                progressArea.classList.remove('hidden');
+                progressFill.style.width = '0%';
+                progressText.textContent = 'Decrypting Protocol... 0%';
+
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.floor(Math.random() * 8) + 1;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        progressText.textContent = 'Extraction Complete! File Ready.';
+                        downloadButton.textContent = 'Transfer Completed';
+                        downloadButton.classList.remove('disabled');
+                        downloadButton.disabled = false;
+                    } else {
+                        progressText.textContent = `Decrypting Protocol... ${progress}%`;
+                    }
+                    progressFill.style.width = `${progress}%`;
+                }, 250);
+            });
+        });
+    </script>
+</body>
+</html>
